@@ -29,3 +29,36 @@
     "type": "image/png"
   }
 ]
+
+"screenshots": [
+  {
+    "src": "scr1.png",
+    "sizes": "1080x1920",
+    "type": "image/png"
+  },
+  {
+    "src": "scr2.png",
+    "sizes": "1080x1920",
+    "type": "image/png"
+  },
+  {
+    "src": "scr3.png",
+    "sizes": "1080x1920",
+    "type": "image/png"
+  },
+  {
+    "src": "scr4.png",
+    "sizes": "1080x1920",
+    "type": "image/png"
+  },
+  {
+    "src": "scr5.png",
+    "sizes": "1080x1920",
+    "type": "image/png"
+  },
+  {
+    "src": "scr6.png",
+    "sizes": "1080x1920",
+    "type": "image/png"
+  }
+]
