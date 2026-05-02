@@ -1,4 +1,5 @@
 {
+"description": "STS-POS is a smart point of sale system designed to manage sales, inventory, and business operations efficiently."  
   "name": "STS-POS",
   "short_name": "STS-POS",
   "start_url": "/",
