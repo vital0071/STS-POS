@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STS-POS</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="auth-screen" id="authScreen">
+      <div class="auth-panel">
+        <div class="auth-brand">
+          <img class="brand-logo" src="assets/sts-logo.png" alt="STS-POS logo" />
+          <div>
+            <strong>STS-POS</strong>
+            <span>Point de vente intelligent</span>
+          </div>
+        </div>
+        <h1>Gérer ventes, stock et équipe dans un seul espace.</h1>
+        <p class="auth-copy">Connecte-toi ou crée ton compte boutique pour commencer.</p>
+
+        <div class="auth-tabs" role="tablist" aria-label="Compte">
+          <button class="auth-tab active" type="button" data-auth-tab="login">Connexion</button>
+          <button class="auth-tab" type="button" data-auth-tab="signup">Inscription</button>
+        </div>
+
+        <form class="auth-form active" id="loginForm">
+          <label>
+            Email
+            <input id="loginEmail" type="email" required placeholder="admin@sts-pos.ht" />
+          </label>
+          <label>
+            Mot de passe
+            <input id="loginPassword" type="password" required placeholder="••••••••" />
+          </label>
+          <button class="primary-button" type="submit">Se connecter</button>
+        </form>
+
+        <form class="auth-form" id="signupForm">
+          <label>
+            Nom de la boutique
+            <input id="signupStore" required placeholder="Ex: Market Lakay" />
+          </label>
+          <label>
+            Nom complet
+            <input id="signupName" required placeholder="Ton nom" />
+          </label>
+          <label>
+            Email
+            <input id="signupEmail" type="email" required placeholder="contact@boutique.ht" />
+          </label>
+          <label>
+            Mot de passe
+            <input id="signupPassword" type="password" required minlength="4" placeholder="Minimum 4 caractères" />
+          </label>
+          <button class="primary-button" type="submit">Créer le compte</button>
+        </form>
+      </div>
+
+      <div class="auth-preview">
+        <img
+          class="auth-hero-image"
+          src="https://images.pexels.com/photos/12935074/pexels-photo-12935074.jpeg?auto=compress&cs=tinysrgb&w=1200"
+          alt="Système POS moderne"
+        />
+        <div class="preview-top">
+          <span>Ventes aujourd'hui</span>
+          <strong>24,850 HTG</strong>
+        </div>
+        <div class="preview-receipt">
+          <div></div>
+          <strong>Fiche imprimable</strong>
+          <span>Ticket client prêt après chaque encaissement.</span>
+        </div>
+        <div class="preview-grid">
+          <span>IA produit</span>
+          <span>3 plans</span>
+          <span>10 utilisateurs</span>
+          <span>Inventaire</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="app-shell hidden" id="appShell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-logo" src="assets/sts-logo.png" alt="STS-POS logo" />
+          <div>
+            <strong>STS-POS</strong>
+            <span id="storeNameText">Boutique</span>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Navigation principale">
+          <button class="nav-item active" data-view="checkout" title="Caisse">
+            <span aria-hidden="true">▦</span>
+            <span>Caisse</span>
+          </button>
+          <button class="nav-item" data-view="products" title="Produits">
+            <span aria-hidden="true">◫</span>
+            <span>Produits</span>
+          </button>
+          <button class="nav-item" data-view="users" title="Utilisateurs">
+            <span aria-hidden="true">◉</span>
+            <span>Équipe</span>
+          </button>
+          <button class="nav-item" data-view="plans" title="Plans">
+            <span aria-hidden="true">◇</span>
+            <span>Plans</span>
+          </button>
+          <button class="nav-item" data-view="reports" title="Rapports">
+            <span aria-hidden="true">▤</span>
+            <span>Rapports</span>
+          </button>
+          <button class="nav-item" data-view="settings" title="Paramètres">
+            <span aria-hidden="true">⚙</span>
+            <span>Paramètres</span>
+          </button>
+        </nav>
+
+        <div class="plan-chip" id="activePlanChip"></div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Point de vente</p>
+            <h1 id="viewTitle">Caisse</h1>
+          </div>
+          <div class="topbar-actions">
+            <select id="activeUserSelect" aria-label="Utilisateur actif"></select>
+            <button class="ghost-button" id="resetDemoButton" type="button">Réinitialiser</button>
+            <button class="danger-button" id="logoutButton" type="button">Déconnexion</button>
+          </div>
+        </header>
+
+        <section class="view active" id="checkoutView">
+          <div class="visual-banner checkout-banner">
+            <div>
+              <span>Caisse rapide</span>
+              <strong>Encaissement clair, reçu prêt, stock synchronisé.</strong>
+            </div>
+          </div>
+          <div class="summary-strip">
+            <div><span>Articles panier</span><strong id="cartCountText">0</strong></div>
+            <div><span>Stock total</span><strong id="stockTotalText">0</strong></div>
+            <div><span>Revenu total</span><strong id="miniRevenueText">0 HTG</strong></div>
+          </div>
+
+          <div class="checkout-grid">
+            <section class="panel product-browser">
+              <div class="section-header">
+                <div>
+                  <h2>Catalogue</h2>
+                  <p>Sélection rapide des produits en stock.</p>
+                </div>
+                <div class="section-tools">
+                  <div class="segmented-control" aria-label="Style catalogue">
+                    <button class="active" type="button" data-catalog-view="grid">Grid</button>
+                    <button type="button" data-catalog-view="list">List</button>
+                  </div>
+                  <input id="productSearch" type="search" placeholder="Rechercher un produit" />
+                </div>
+              </div>
+              <div class="product-grid" id="checkoutProducts"></div>
+            </section>
+
+            <section class="panel cart-panel">
+              <div class="section-header">
+                <div>
+                  <h2>Vente courante</h2>
+                  <p id="cartMeta">Aucun article</p>
+                </div>
+                <button class="icon-button" id="clearCartButton" type="button" title="Vider le panier">×</button>
+              </div>
+              <div class="cart-lines" id="cartLines"></div>
+              <div class="totals">
+                <div><span>Sous-total</span><strong id="subtotalText">0.00 HTG</strong></div>
+                <div><span>Taxe 10%</span><strong id="taxText">0.00 HTG</strong></div>
+                <div class="grand-total"><span>Total</span><strong id="totalText">0.00 HTG</strong></div>
+              </div>
+              <div class="payment-row">
+                <select id="paymentMethod" aria-label="Méthode de paiement">
+                  <option>Cash</option>
+                  <option>Carte</option>
+                  <option>MonCash</option>
+                  <option>Crédit client</option>
+                </select>
+                <button class="primary-button" id="checkoutButton" type="button">Encaisser</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="productsView">
+          <div class="visual-banner products-banner">
+            <div>
+              <span>Inventaire intelligent</span>
+              <strong>Ajoute les produits avec photo et identification IA.</strong>
+            </div>
+          </div>
+          <div class="inventory-layout">
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Nouveau produit</h2>
+                  <p>Photo, transcription IA, prix et stock.</p>
+                </div>
+                <span class="premium-badge">Premium IA</span>
+              </div>
+
+              <form id="productForm" class="product-form">
+                <div class="capture-area">
+                  <div class="camera-box">
+                    <video id="cameraPreview" autoplay playsinline muted></video>
+                    <img id="photoPreview" alt="Aperçu du produit" />
+                    <div class="camera-placeholder" id="cameraPlaceholder">
+                      <span>▧</span>
+                      <p>Photo du produit</p>
+                    </div>
+                  </div>
+                  <div class="capture-actions">
+                    <button class="ghost-button" id="startCameraButton" type="button">Caméra</button>
+                    <button class="ghost-button" id="takePhotoButton" type="button">Capturer</button>
+                    <label class="file-button">
+                      Importer
+                      <input id="photoInput" type="file" accept="image/*" />
+                    </label>
+                    <button class="secondary-button" id="aiNameButton" type="button">Nom IA</button>
+                  </div>
+                  <p class="ai-status" id="aiStatus">Ajoute une photo, puis lance l’identification.</p>
+                </div>
+
+                <div class="form-grid">
+                  <label>
+                    Nom du produit
+                    <input id="productName" required placeholder="Ex: Cola 12 oz" />
+                  </label>
+                  <label>
+                    Catégorie
+                    <select id="productCategory">
+                      <option>Boisson</option>
+                      <option>Épicerie</option>
+                      <option>Hygiène</option>
+                      <option>Maison</option>
+                      <option>Autre</option>
+                    </select>
+                  </label>
+                  <label>
+                    Prix
+                    <input id="productPrice" type="number" min="0" step="0.01" required placeholder="0.00" />
+                  </label>
+                  <label>
+                    Stock
+                    <input id="productStock" type="number" min="0" step="1" required placeholder="0" />
+                  </label>
+                  <label class="wide">
+                    SKU
+                    <input id="productSku" placeholder="Auto si vide" />
+                  </label>
+                </div>
+                <button class="primary-button" type="submit">Enregistrer produit</button>
+              </form>
+            </section>
+
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Inventaire</h2>
+                  <p id="inventoryMeta"></p>
+                </div>
+                <div class="segmented-control" aria-label="Style inventaire">
+                  <button class="active" type="button" data-inventory-view="table">Table</button>
+                  <button type="button" data-inventory-view="grid">Grid</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Produit</th>
+                      <th>Catégorie</th>
+                      <th>Prix</th>
+                      <th>Stock</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventoryTable"></tbody>
+                </table>
+              </div>
+              <div class="inventory-cards hidden" id="inventoryCards"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="usersView">
+          <div class="two-column">
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Utilisateurs</h2>
+                  <p id="userLimitText"></p>
+                </div>
+              </div>
+              <form id="userForm" class="inline-form">
+                <input id="userName" required placeholder="Nom utilisateur" />
+                <select id="userRole">
+                  <option>Caissier</option>
+                  <option>Manager</option>
+                  <option>Admin</option>
+                </select>
+                <button class="primary-button" type="submit">Ajouter</button>
+              </form>
+              <div class="user-list" id="userList"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Droits rapides</h2>
+                  <p>Contrôle par rôle pour une petite équipe.</p>
+                </div>
+              </div>
+              <div class="permission-grid">
+                <div><strong>Admin</strong><span>Plans, utilisateurs, rapports, inventaire.</span></div>
+                <div><strong>Manager</strong><span>Ventes, produits, stock, rapports.</span></div>
+                <div><strong>Caissier</strong><span>Caisse et consultation catalogue.</span></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="plansView">
+          <div class="visual-banner plans-banner">
+            <div>
+              <span>Abonnement flexible</span>
+              <strong>Commence avec 7 jours d'essai gratuit.</strong>
+            </div>
+          </div>
+          <div class="plans-grid" id="plansGrid"></div>
+        </section>
+
+        <section class="view" id="reportsView">
+          <div class="visual-banner reports-banner">
+            <div>
+              <span>Rapports exportables</span>
+              <strong>Analyse les ventes et partage les chiffres en Excel ou PDF.</strong>
+            </div>
+          </div>
+          <div class="reports-grid">
+            <section class="metric-card"><span>Ventes</span><strong id="salesCount">0</strong></section>
+            <section class="metric-card"><span>Revenu</span><strong id="revenueTotal">0.00 HTG</strong></section>
+            <section class="metric-card"><span>Produits</span><strong id="productCount">0</strong></section>
+            <section class="metric-card"><span>Stock faible</span><strong id="lowStockCount">0</strong></section>
+          </div>
+          <section class="panel">
+            <div class="section-header">
+              <div>
+                <h2>Dernières ventes</h2>
+                <p>Historique local de la caisse.</p>
+              </div>
+              <div class="section-actions">
+                <select id="reportTypeSelect" aria-label="Type rapport">
+                  <option value="sales">Ventes</option>
+                  <option value="products">Produit</option>
+                  <option value="clients">Client</option>
+                  <option value="inventory">Inventaire</option>
+                </select>
+                <button class="ghost-button" id="exportExcelButton" type="button">Excel</button>
+                <button class="ghost-button" id="exportInventoryButton" type="button">Inventaire</button>
+                <button class="ghost-button" id="exportPdfButton" type="button">PDF</button>
+              </div>
+            </div>
+            <div class="report-chart" id="reportChart"></div>
+            <div class="receipt-list" id="receiptList"></div>
+          </section>
+        </section>
+
+        <section class="view" id="settingsView">
+          <div class="visual-banner settings-banner">
+            <div>
+              <span>Gestion complète</span>
+              <strong>Profil, rôles, accès, langue et abonnement au même endroit.</strong>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Profil</h2>
+                  <p>Photo et informations personnelles.</p>
+                </div>
+              </div>
+              <form id="profileForm" class="profile-form">
+                <div class="profile-photo">
+                  <img id="profilePhotoPreview" alt="Photo profil" />
+                  <div id="profilePhotoFallback">IZ</div>
+                </div>
+                <label class="file-button profile-upload">
+                  Changer photo
+                  <input id="profilePhotoInput" type="file" accept="image/*" />
+                </label>
+                <label>
+                  Nom complet
+                  <input id="profileName" required />
+                </label>
+                <label>
+                  Email
+                  <input id="profileEmail" type="email" required />
+                </label>
+                <label>
+                  Téléphone
+                  <input id="profilePhone" placeholder="+509 ..." />
+                </label>
+                <label>
+                  Boutique
+                  <input id="profileStore" required />
+                </label>
+                <button class="primary-button" type="submit">Sauvegarder profil</button>
+              </form>
+            </section>
+
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Langue</h2>
+                  <p>Interface disponible en 3 langues.</p>
+                </div>
+              </div>
+              <label>
+                Langue de l'application
+                <select id="languageSelect">
+                  <option value="fr">Français</option>
+                  <option value="ht">Kreyòl</option>
+                  <option value="en">English</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="panel settings-wide">
+              <div class="section-header">
+                <div>
+                  <h2>Rôles et accès</h2>
+                  <p>L'admin peut créer un rôle, donner accès, retirer ou ajouter un utilisateur.</p>
+                </div>
+              </div>
+              <form id="roleForm" class="role-form">
+                <input id="roleName" required placeholder="Nom du rôle" />
+                <label><input type="checkbox" name="permission" value="Caisse" checked /> Caisse</label>
+                <label><input type="checkbox" name="permission" value="Produits" /> Produits</label>
+                <label><input type="checkbox" name="permission" value="Rapports" /> Rapports</label>
+                <label><input type="checkbox" name="permission" value="Utilisateurs" /> Utilisateurs</label>
+                <label><input type="checkbox" name="permission" value="Paramètres" /> Paramètres</label>
+                <button class="primary-button" type="submit">Créer rôle</button>
+              </form>
+              <div class="role-list" id="roleList"></div>
+            </section>
+
+            <section class="panel settings-wide">
+              <div class="section-header">
+                <div>
+                  <h2>Abonnement</h2>
+                  <p>7 jours d'essai gratuit. Les changements de plan sont validés par STS.</p>
+                </div>
+              </div>
+              <div class="payment-box">
+                <strong>Information paiement MonCash</strong>
+                <span>Numéro: +509 48 48 74 23</span>
+                <span>Nom: Vital-Herne Zéphy</span>
+              </div>
+              <form id="paymentProofForm" class="proof-form">
+                <select id="proofPlan">
+                  <option value="free">Starter - 500 GDES</option>
+                  <option value="premium">Premium - 900 GDES</option>
+                  <option value="gold">Gold - 1300 GDES</option>
+                </select>
+                <input id="proofTransaction" required placeholder="Référence transaction MonCash" />
+                <input id="proofPhone" required placeholder="Téléphone qui a payé" />
+                <button class="primary-button" type="submit">Envoyer preuve</button>
+              </form>
+              <div class="subscription-strip" id="subscriptionStrip"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="app-shell admin-shell hidden" id="adminShell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-logo" src="assets/sts-logo.png" alt="STS-POS logo" />
+          <div>
+            <strong>STS-POS</strong>
+            <span>Console commerciale</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Navigation administration">
+          <button class="nav-item active" data-admin-view="adminDashboard" title="Vue globale">
+            <span aria-hidden="true">▦</span>
+            <span>Vue globale</span>
+          </button>
+          <button class="nav-item" data-admin-view="adminClients" title="Clients">
+            <span aria-hidden="true">▣</span>
+            <span>Clients</span>
+          </button>
+          <button class="nav-item" data-admin-view="adminRequests" title="Demandes">
+            <span aria-hidden="true">◇</span>
+            <span>Demandes</span>
+          </button>
+          <button class="nav-item" data-admin-view="adminReports" title="Rapports">
+            <span aria-hidden="true">▤</span>
+            <span>Rapports</span>
+          </button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Administration STS</p>
+            <h1 id="adminViewTitle">Vue globale</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="danger-button" id="adminLogoutButton" type="button">Déconnexion</button>
+          </div>
+        </header>
+
+        <section class="admin-view active" id="adminDashboardView">
+          <div class="visual-banner clients-banner">
+            <div>
+              <span>Commercialisation</span>
+              <strong>Suivi des clients, preuves MonCash et accès abonnements.</strong>
+            </div>
+          </div>
+          <div class="reports-grid">
+            <section class="metric-card"><span>Clients</span><strong id="adminClientCount">0</strong></section>
+            <section class="metric-card"><span>Actifs</span><strong id="adminActiveCount">0</strong></section>
+            <section class="metric-card"><span>Demandes</span><strong id="adminRequestCount">0</strong></section>
+            <section class="metric-card"><span>MRR</span><strong id="adminMrrText">0 HTG</strong></section>
+          </div>
+        </section>
+
+        <section class="admin-view" id="adminClientsView">
+          <div class="clients-layout">
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Ajouter client</h2>
+                  <p>Créer une boutique et attribuer un plan.</p>
+                </div>
+              </div>
+              <form id="clientForm" class="client-form">
+                <input id="clientStore" required placeholder="Nom boutique" />
+                <input id="clientOwner" required placeholder="Responsable" />
+                <input id="clientEmail" type="email" required placeholder="Email client" />
+                <select id="clientPlan">
+                  <option value="free">Starter</option>
+                  <option value="premium">Premium</option>
+                  <option value="gold">Gold</option>
+                </select>
+                <select id="clientStatus">
+                  <option value="trial">Essai</option>
+                  <option value="active">Actif</option>
+                  <option value="blocked">Bloqué</option>
+                </select>
+                <button class="primary-button" type="submit">Ajouter client</button>
+              </form>
+            </section>
+            <section class="panel clients-wide">
+              <div class="section-header">
+                <div>
+                  <h2>Clients abonnés</h2>
+                  <p id="clientsMeta">Gestion commerciale centralisée.</p>
+                </div>
+              </div>
+              <div class="client-list" id="clientList"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-view" id="adminRequestsView">
+          <section class="panel">
+            <div class="section-header">
+              <div>
+                <h2>Demandes abonnement</h2>
+                <p>Valide les paiements MonCash avant changement de plan.</p>
+              </div>
+            </div>
+            <div class="request-list" id="requestList"></div>
+          </section>
+        </section>
+
+        <section class="admin-view" id="adminReportsView">
+          <section class="panel">
+            <div class="section-header">
+              <div>
+                <h2>Rapports clients</h2>
+                <p>Analyse commerciale des abonnements.</p>
+              </div>
+              <button class="ghost-button" id="adminExportClientsButton" type="button">Exporter clients</button>
+            </div>
+            <div class="report-chart" id="adminChart"></div>
+            <div class="client-list" id="adminReportList"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="receipt-dialog" id="receiptDialog">
+      <div class="receipt-actions no-print">
+        <button class="ghost-button" id="closeReceiptButton" type="button">Fermer</button>
+        <button class="primary-button" id="printReceiptButton" type="button">Imprimer</button>
+      </div>
+      <article class="receipt-paper" id="receiptPaper"></article>
+    </dialog>
+
+    <dialog class="receipt-dialog report-dialog" id="reportDialog">
+      <div class="receipt-actions no-print">
+        <button class="ghost-button" id="closeReportButton" type="button">Fermer</button>
+        <button class="primary-button" id="printReportButton" type="button">Imprimer / PDF</button>
+      </div>
+      <article class="receipt-paper report-paper" id="reportPaper"></article>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
